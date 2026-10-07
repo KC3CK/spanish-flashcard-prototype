@@ -1,0 +1,232 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>Spanish Flashcards — 40 Card iPad Prototype</title>
+<style>
+:root{--bg:#ffffff;--fg:#111111;--accent:#d9e8f5;--fontSize:32px}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:"Arial Black",Arial,sans-serif;font-size:var(--fontSize)}
+main{max-width:1050px;margin:auto;padding:18px}
+h1{font-size:1.15em;margin:.2em 0 .6em}
+h2{font-size:.9em}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+button,select,input,textarea{font:inherit;color:var(--fg);background:var(--bg);border:3px solid var(--fg);border-radius:12px;padding:14px;min-height:62px}
+button:focus,select:focus,input:focus,textarea:focus{outline:5px solid currentColor;outline-offset:3px}
+.card{border:4px solid var(--fg);border-radius:18px;padding:24px;margin:18px 0;min-height:330px}
+.label{font-size:.58em;text-transform:uppercase}
+.term{font-size:1.35em;margin:12px 0}
+.example{font-size:.78em;margin-top:18px}
+.hiddenText{visibility:hidden}
+.status{font-size:.62em;margin:10px 0}
+.panel{border:3px solid var(--fg);border-radius:14px;padding:16px;margin:16px 0}
+.row{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+.row>*{flex:1 1 220px}
+.small{font-size:.6em}
+.hidden{display:none}
+input[type=color]{min-height:70px}
+@media(max-width:700px){.grid{grid-template-columns:1fr}.term{font-size:1.2em}}
+</style>
+</head>
+<body><main>
+<h1>English–Latin American Spanish Flashcards — 40 Card Prototype</h1>
+
+<div class="panel">
+<div class="grid">
+<select id="direction" aria-label="Study direction"><option value="en-es">English → Spanish</option><option value="es-en">Spanish → English</option></select>
+<select id="mode" aria-label="Presentation mode"><option value="audio-text">Audio + Text</option><option value="audio">Audio Only</option><option value="text">Text Only</option></select>
+<select id="topic" aria-label="Topic filter"><option value="">All Topics</option></select>
+<select id="statusFilter" aria-label="Study status filter"><option value="">All Study Statuses</option><option>New</option><option>Learning</option><option>Learned</option><option>Difficult</option><option>Favorite</option></select>
+</div>
+</div>
+
+<div class="status" id="status" aria-live="polite"></div>
+<section class="card" aria-label="Flashcard">
+<div class="label" id="sideLabel"></div>
+<div class="term" id="term"></div>
+<div class="example" id="example"></div>
+<hr>
+<div class="label">Answer</div>
+<div class="term hiddenText" id="answer"></div>
+<div class="example hiddenText" id="answerExample"></div>
+</section>
+
+<div class="grid">
+<button id="speakBtn">SPEAK / REPEAT</button>
+<button id="revealBtn">REVEAL</button>
+<button id="sentenceBtn">REPEAT SENTENCE</button>
+<button id="nextBtn">NEXT</button>
+<button id="prevBtn">PREVIOUS</button>
+<button id="learnedBtn">LEARNED</button>
+<button id="difficultBtn">DIFFICULT</button>
+<button id="favoriteBtn">FAVORITE</button>
+<button id="shuffleBtn">RANDOMIZE</button>
+<button id="moreBtn">MORE / SETTINGS</button>
+</div>
+
+<div id="morePanel" class="panel hidden">
+<h2>Display, Audio, Search and Editing</h2>
+<div class="grid">
+<label>Text color <input type="color" id="fgColor" value="#111111"></label>
+<label>Background color <input type="color" id="bgColor" value="#ffffff"></label>
+<label>Text size <input type="range" id="fontSize" min="18" max="56" value="32"></label>
+<button id="contrast1">Black on White</button>
+<button id="contrast2">White on Black</button>
+<select id="englishVoice" aria-label="English voice"></select>
+<select id="spanishVoice" aria-label="Spanish voice"></select>
+<label>English rate <input type="range" id="enRate" min=".5" max="1.5" step=".1" value="1"></label>
+<label>Spanish rate <input type="range" id="esRate" min=".5" max="1.5" step=".1" value=".9"></label>
+<button id="previewEnglish">Preview English Voice</button>
+<button id="previewSpanish">Preview Spanish Voice</button>
+</div>
+<hr>
+<div class="row">
+<input id="searchBox" placeholder="Search English or Spanish" aria-label="Search cards">
+<button id="searchBtn">SEARCH</button>
+<button id="clearSearchBtn">CLEAR SEARCH</button>
+</div>
+<hr>
+<div class="grid">
+<button id="addBtn">QUICK ADD CARD</button>
+<button id="editBtn">EDIT CURRENT CARD</button>
+<button id="exportBtn">EXPORT LOCAL CHANGES</button>
+<button id="resetBtn">RESET PROTOTYPE PROGRESS</button>
+</div>
+</div>
+
+<div id="editor" class="panel hidden">
+<h2 id="editorTitle">Quick Add Card</h2>
+<input id="editEnglish" placeholder="English" aria-label="English">
+<input id="editSpanish" placeholder="Spanish" aria-label="Spanish">
+<textarea id="editEnglishExample" placeholder="English example" aria-label="English example"></textarea>
+<textarea id="editSpanishExample" placeholder="Spanish example" aria-label="Spanish example"></textarea>
+<input id="editTopic" placeholder="Topic" aria-label="Topic">
+<input id="editType" placeholder="Entry type" aria-label="Entry type">
+<div class="grid"><button id="saveEdit">SAVE</button><button id="cancelEdit">CANCEL</button></div>
+</div>
+
+<p class="small"><strong>Keyboard/XK-24 prototype shortcuts:</strong> Space=Reveal; Right Arrow=Next; Left Arrow=Previous; S=Speak; E=Example sentence; L=Learned; D=Difficult; F=Favorite; R=Randomize; M=More/Settings. These are ordinary keyboard commands and can later be mapped to XK-24 keys.</p>
+<p class="small">Prototype data and progress are stored locally in this browser only. This prototype does not modify the Excel master database.</p>
+
+<script>
+const masterCards=[{"id": 926, "english": "TIP", "spanish": "PROPINA", "englishExample": "The tip is included.", "spanishExample": "La propina está incluida.", "type": "Noun", "topic": "Food / dining", "verbFamily": "", "tense": "", "person": "", "priority": "Common", "register": "Neutral", "regional": "", "baseVerb": ""}, {"id": 927, "english": "A TABLE FOR TWO, PLEASE.", "spanish": "UNA MESA PARA DOS, POR FAVOR.", "englishExample": "A table for two, please.", "spanishExample": "Una mesa para dos, por favor.", "type": "Phrase", "topic": "Food / dining", "verbFamily": "", "tense": "", "person": "", "priority": "Core", "register": "Neutral", "regional": "", "baseVerb": ""}, {"id": 928, "english": "THE MENU, PLEASE.", "spanish": "EL MENÚ, POR FAVOR.", "englishExample": "The menu, please.", "spanishExample": "El menú, por favor.", "type": "Phrase", "topic": "Food / dining", "verbFamily": "", "tense": "", "person": "", "priority": "Core", "register": "Neutral", "regional": "", "baseVerb": ""}, {"id": 929, "english": "WHAT DO YOU RECOMMEND?", "spanish": "¿QUÉ RECOMIENDA?", "englishExample": "What do you recommend today?", "spanishExample": "¿Qué recomienda hoy?", "type": "Question", "topic": "Food / dining", "verbFamily": "", "tense": "Present", "person": "", "priority": "Core", "register": "Neutral", "regional": "", "baseVerb": "recomendar"}, {"id": 930, "english": "I'M ALLERGIC TO ...", "spanish": "SOY ALÉRGICO A ...", "englishExample": "I'm allergic to peanuts.", "spanishExample": "Soy alérgico a los cacahuates.", "type": "Phrase", "topic": "Food / dining", "verbFamily": "", "tense": "Present", "person": "", "priority": "Core", "register": "Neutral", "regional": "Peanut terms vary by country.", "baseVerb": "ser"}, {"id": 931, "english": "WITHOUT", "spanish": "SIN", "englishExample": "Coffee without sugar, please.", "spanishExample": "Café sin azúcar, por favor.", "type": "Preposition", "topic": "Food / dining", "verbFamily": "", "tense": "", "person": "", "priority": "Core", "register": "Neutral", "regional": "", "baseVerb": ""}, {"id": 932, "english": "WITH", "spanish": "CON", "englishExample": "I'd like it with rice.", "spanishExample": "Lo quisiera con arroz.", "type": "Preposition", "topic": "Food / dining", "verbFamily": "", "tense": "", "person": "", "priority": "Core", "register": "Neutral", "regional": "", "baseVerb": ""}, {"id": 933, "english": "THE CHECK, PLEASE.", "spanish": "LA CUENTA, POR FAVOR.", "englishExample": "The check, please.", "spanishExample": "La cuenta, por favor.", "type": "Phrase", "topic": "Food / dining", "verbFamily": "", "tense": "", "person": "", "priority": "Core", "register": "Neutral", "regional": "", "baseVerb": ""}, {"id": 934, "english": "WATER", "spanish": "AGUA", "englishExample": "I'd like a glass of water.", "spanishExample": "Quisiera un vaso de agua.", "type": "Noun", "topic": "Food / dining", "verbFamily": "", "tense": "", "person": "", "priority": "Core", "register": "Neutral", "regional": "", "baseVerb": ""}, {"id": 935, "english": "ICE", "spanish": "HIELO", "englishExample": "No ice, please.", "spanishExample": "Sin hielo, por favor.", "type": "Noun", "topic": "Food / dining", "verbFamily": "", "tense": "", "person": "", "priority": "Common", "register": "Neutral", "regional": "", "baseVerb": ""}, {"id": 936, "english": "BREAKFAST", "spanish": "DESAYUNO", "englishExample": "Breakfast starts at seven.", "spanishExample": "El desayuno empieza a las siete.", "type": "Noun", "topic": "Food / dining", "verbFamily": "", "tense": "", "person": "", "priority": "Core", "register": "Neutral", "regional": "", "baseVerb": ""}, {"id": 937, "english": "LUNCH", "spanish": "ALMUERZO", "englishExample": "Let's have lunch here.", "spanishExample": "Almorcemos aquí.", "type": "Noun", "topic": "Food / dining", "verbFamily": "", "tense": "", "person": "", "priority": "Core", "register": "Neutral", "regional": "Meal terms vary regionally.", "baseVerb": ""}, {"id": 938, "english": "DINNER", "spanish": "CENA", "englishExample": "Dinner is ready.", "spanishExample": "La cena está lista.", "type": "Noun", "topic": "Food / dining", "verbFamily": "", "tense": "", "person": "", "priority": "Core", "register": "Neutral", "regional": "", "baseVerb": ""}, {"id": 939, "english": "AIRPORT", "spanish": "AEROPUERTO", "englishExample": "How far is the airport?", "spanishExample": "¿Qué tan lejos está el aeropuerto?", "type": "Noun", "topic": "Travel / transportation", "verbFamily": "", "tense": "", "person": "", "priority": "Core", "register": "Neutral", "regional": "", "baseVerb": ""}, {"id": 940, "english": "HOTEL", "spanish": "HOTEL", "englishExample": "The hotel is near the airport.", "spanishExample": "El hotel está cerca del aeropuerto.", "type": "Noun", "topic": "Travel / transportation", "verbFamily": "", "tense": "", "person": "", "priority": "Core", "register": "Neutral", "regional": "", "baseVerb": ""}, {"id": 941, "english": "RESERVATION", "spanish": "RESERVACIÓN", "englishExample": "I have a reservation.", "spanishExample": "Tengo una reservación.", "type": "Noun", "topic": "Travel / transportation", "verbFamily": "", "tense": "", "person": "", "priority": "Core", "register": "Neutral", "regional": "Reserva is also common in many countries.", "baseVerb": ""}, {"id": 942, "english": "ROOM", "spanish": "HABITACIÓN", "englishExample": "The room is ready.", "spanishExample": "La habitación está lista.", "type": "Noun", "topic": "Travel / transportation", "verbFamily": "", "tense": "", "person": "", "priority": "Core", "register": "Neutral", "regional": "", "baseVerb": ""}, {"id": 943, "english": "KEY", "spanish": "LLAVE", "englishExample": "I lost the room key.", "spanishExample": "Perdí la llave de la habitación.", "type": "Noun", "topic": "Travel / transportation", "verbFamily": "", "tense": "", "person": "", "priority": "Core", "register": "Neutral", "regional": "", "baseVerb": ""}, {"id": 944, "english": "TAXI", "spanish": "TAXI", "englishExample": "Please call me a taxi.", "spanishExample": "Por favor, llámeme un taxi.", "type": "Noun", "topic": "Everyday conversation", "verbFamily": "", "tense": "", "person": "", "priority": "Core", "register": "Neutral", "regional": "", "baseVerb": ""}, {"id": 945, "english": "BUS", "spanish": "AUTOBÚS", "englishExample": "Where does the bus stop?", "spanishExample": "¿Dónde para el autobús?", "type": "Noun", "topic": "Everyday conversation", "verbFamily": "", "tense": "", "person": "", "priority": "Core", "register": "Neutral", "regional": "Bus vocabulary varies by country.", "baseVerb": ""}, {"id": 946, "english": "TRAIN", "spanish": "TREN", "englishExample": "The train leaves at noon.", "spanishExample": "El tren sale al mediodía.", "type": "Noun", "topic": "Everyday conversation", "verbFamily": "", "tense": "", "person": "", "priority": "Common", "register": "Neutral", "regional": "", "baseVerb": ""}, {"id": 947, "english": "TICKET", "spanish": "BOLETO", "englishExample": "I need a ticket to the city center.", "spanishExample": "Necesito un boleto al centro.", "type": "Noun", "topic": "Travel / transportation", "verbFamily": "", "tense": "", "person": "", "priority": "Core", "register": "Neutral", "regional": "Billete/pasaje are common alternatives regionally.", "baseVerb": ""}, {"id": 948, "english": "LEFT", "spanish": "IZQUIERDA", "englishExample": "Turn left at the corner.", "spanishExample": "Dobla a la izquierda en la esquina.", "type": "Direction", "topic": "Everyday conversation", "verbFamily": "", "tense": "", "person": "", "priority": "Core", "register": "Neutral", "regional": "", "baseVerb": ""}, {"id": 949, "english": "RIGHT", "spanish": "DERECHA", "englishExample": "Turn right here.", "spanishExample": "Dobla a la derecha aquí.", "type": "Direction", "topic": "Everyday conversation", "verbFamily": "", "tense": "", "person": "", "priority": "Core", "register": "Neutral", "regional": "", "baseVerb": ""}, {"id": 960, "english": "HELP!", "spanish": "¡AYUDA!", "englishExample": "Help! Call the police!", "spanishExample": "¡Ayuda! ¡Llame a la policía!", "type": "Exclamation", "topic": "Emergency preparedness", "verbFamily": "", "tense": "", "person": "", "priority": "Core", "register": "Neutral", "regional": "", "baseVerb": ""}, {"id": 961, "english": "CALL THE POLICE.", "spanish": "LLAME A LA POLICÍA.", "englishExample": "Call the police now.", "spanishExample": "Llame a la policía ahora.", "type": "Conversation phrase", "topic": "Emergency preparedness", "verbFamily": "", "tense": "Imperative", "person": "", "priority": "Core", "register": "Neutral", "regional": "", "baseVerb": "llamar"}, {"id": 962, "english": "CALL AN AMBULANCE.", "spanish": "LLAME A UNA AMBULANCIA.", "englishExample": "Please call an ambulance.", "spanishExample": "Por favor, llame a una ambulancia.", "type": "Conversation phrase", "topic": "Emergency preparedness", "verbFamily": "", "tense": "Imperative", "person": "", "priority": "Core", "register": "Neutral", "regional": "", "baseVerb": "llamar"}, {"id": 963, "english": "I NEED A DOCTOR.", "spanish": "NECESITO UN MÉDICO.", "englishExample": "I need a doctor right away.", "spanishExample": "Necesito un médico de inmediato.", "type": "Phrase", "topic": "Health / body", "verbFamily": "", "tense": "Present", "person": "", "priority": "Core", "register": "Neutral", "regional": "", "baseVerb": "necesitar"}, {"id": 964, "english": "PHARMACY", "spanish": "FARMACIA", "englishExample": "Is there a pharmacy nearby?", "spanishExample": "¿Hay una farmacia cerca?", "type": "Noun", "topic": "Health / body", "verbFamily": "", "tense": "", "person": "", "priority": "Core", "register": "Neutral", "regional": "", "baseVerb": ""}, {"id": 965, "english": "MEDICINE", "spanish": "MEDICAMENTO", "englishExample": "I need this medicine.", "spanishExample": "Necesito este medicamento.", "type": "Noun", "topic": "Health / body", "verbFamily": "", "tense": "", "person": "", "priority": "Core", "register": "Neutral", "regional": "", "baseVerb": ""}, {"id": 966, "english": "PAIN", "spanish": "DOLOR", "englishExample": "I have pain in my back.", "spanishExample": "Tengo dolor en la espalda.", "type": "Noun", "topic": "Health / body", "verbFamily": "", "tense": "", "person": "", "priority": "Core", "register": "Neutral", "regional": "", "baseVerb": ""}, {"id": 967, "english": "IT HURTS HERE.", "spanish": "ME DUELE AQUÍ.", "englishExample": "It hurts here when I move.", "spanishExample": "Me duele aquí cuando me muevo.", "type": "Phrase", "topic": "Health / body", "verbFamily": "", "tense": "Present", "person": "", "priority": "Core", "register": "Neutral", "regional": "", "baseVerb": "doler"}, {"id": 993, "english": "CALL SIGN", "spanish": "INDICATIVO", "englishExample": "What is your call sign?", "spanishExample": "¿Cuál es tu indicativo?", "type": "Noun", "topic": "Amateur radio", "verbFamily": "", "tense": "", "person": "", "priority": "Specialized", "register": "Neutral", "regional": "Distintivo de llamada is also understood.", "baseVerb": ""}, {"id": 994, "english": "FREQUENCY", "spanish": "FRECUENCIA", "englishExample": "What frequency are you using?", "spanishExample": "¿Qué frecuencia estás usando?", "type": "Noun", "topic": "Amateur radio", "verbFamily": "", "tense": "Present progressive", "person": "", "priority": "Specialized", "register": "Neutral", "regional": "", "baseVerb": "usar"}, {"id": 995, "english": "ANTENNA", "spanish": "ANTENA", "englishExample": "The antenna is on the roof.", "spanishExample": "La antena está en el techo.", "type": "Noun", "topic": "Amateur radio", "verbFamily": "", "tense": "Present", "person": "", "priority": "Specialized", "register": "Neutral", "regional": "", "baseVerb": ""}, {"id": 996, "english": "REPEATER", "spanish": "REPETIDOR", "englishExample": "I'm listening to the local repeater.", "spanishExample": "Estoy escuchando el repetidor local.", "type": "Noun", "topic": "Amateur radio", "verbFamily": "", "tense": "Present progressive", "person": "", "priority": "Specialized", "register": "Neutral", "regional": "", "baseVerb": "escuchar"}, {"id": 997, "english": "TRANSMIT", "spanish": "TRANSMITIR", "englishExample": "Do not transmit yet.", "spanishExample": "No transmitas todavía.", "type": "Verb", "topic": "Amateur radio", "verbFamily": "-IR", "tense": "Infinitive", "person": "", "priority": "Specialized", "register": "Neutral", "regional": "", "baseVerb": "transmitir"}, {"id": 998, "english": "RECEIVE", "spanish": "RECIBIR", "englishExample": "I can receive your signal.", "spanishExample": "Puedo recibir tu señal.", "type": "Verb", "topic": "Amateur radio", "verbFamily": "-IR", "tense": "Infinitive", "person": "", "priority": "Specialized", "register": "Neutral", "regional": "", "baseVerb": "recibir"}, {"id": 999, "english": "MICROPHONE", "spanish": "MICRÓFONO", "englishExample": "The microphone is connected.", "spanishExample": "El micrófono está conectado.", "type": "Noun", "topic": "Amateur radio", "verbFamily": "", "tense": "", "person": "", "priority": "Specialized", "register": "Neutral", "regional": "", "baseVerb": ""}, {"id": 1000, "english": "POWER SUPPLY", "spanish": "FUENTE DE ALIMENTACIÓN", "englishExample": "The power supply is turned on.", "spanishExample": "La fuente de alimentación está encendida.", "type": "Noun", "topic": "Amateur radio", "verbFamily": "", "tense": "", "person": "", "priority": "Specialized", "register": "Neutral", "regional": "", "baseVerb": ""}];
+const clone=o=>JSON.parse(JSON.stringify(o));
+let cards=clone(masterCards), deck=[], index=0, revealed=false, editingId=null;
+
+const $=id=>document.getElementById(id);
+const stateKey='ipadSpanishPrototypeV2';
+let state=JSON.parse(localStorage.getItem(stateKey)||'{}');
+state.progress=state.progress||{};
+state.added=state.added||[];
+state.edits=state.edits||{};
+cards=cards.map(c=>Object.assign(c,state.edits[c.id]||{})).concat(state.added);
+
+function saveState(){localStorage.setItem(stateKey,JSON.stringify(state))}
+function cardState(c){return state.progress[c.id]||{study:'New',difficult:false,favorite:false}}
+function setCardState(patch){let c=current();state.progress[c.id]=Object.assign(cardState(c),patch);saveState();applyFilters(false)}
+function current(){return deck[index]||cards[0]}
+
+function populateTopics(){
+  let vals=[...new Set(cards.map(c=>c.topic).filter(Boolean))].sort();
+  $('topic').innerHTML='<option value="">All Topics</option>'+vals.map(v=>`<option>${v}</option>`).join('');
+}
+function applyFilters(reset=true){
+ let t=$('topic').value, sf=$('statusFilter').value, q=($('searchBox').value||'').trim().toLowerCase();
+ deck=cards.filter(c=>{
+   let st=cardState(c);
+   let statusOK=!sf || (sf==='Difficult'?st.difficult:sf==='Favorite'?st.favorite:st.study===sf);
+   let searchOK=!q || [c.english,c.spanish,c.englishExample,c.spanishExample,c.topic,c.type,c.baseVerb].join(' ').toLowerCase().includes(q);
+   return (!t||c.topic===t)&&statusOK&&searchOK;
+ });
+ if(!deck.length) deck=cards.filter(c=>!t||c.topic===t);
+ if(reset) index=0; else index=Math.min(index,Math.max(0,deck.length-1));
+ render();
+}
+function voiceFor(lang){
+ let id=lang==='en'?$('englishVoice').value:$('spanishVoice').value;
+ return speechSynthesis.getVoices().find(v=>v.voiceURI===id);
+}
+function speak(text,lang){
+ if(!('speechSynthesis' in window)||!text)return;
+ speechSynthesis.cancel(); let u=new SpeechSynthesisUtterance(text);
+ u.lang=lang==='en'?'en-US':'es-US'; u.rate=parseFloat(lang==='en'?$('enRate').value:$('esRate').value);
+ let v=voiceFor(lang); if(v)u.voice=v; speechSynthesis.speak(u);
+}
+function loadVoices(){
+ let voices=speechSynthesis.getVoices();
+ let fill=(el,filter,preferred)=>{
+   let vs=voices.filter(filter); el.innerHTML=vs.map(v=>`<option value="${v.voiceURI}">${v.name} — ${v.lang}</option>`).join('');
+   let saved=state[el.id]; if(saved&&vs.some(v=>v.voiceURI===saved))el.value=saved;
+   else {let p=vs.find(preferred);if(p)el.value=p.voiceURI}
+ };
+ fill($('englishVoice'),v=>/^en/i.test(v.lang),v=>/^en-US/i.test(v.lang));
+ fill($('spanishVoice'),v=>/^es/i.test(v.lang),v=>/es-(US|MX|419)/i.test(v.lang));
+}
+speechSynthesis.onvoiceschanged=loadVoices; loadVoices();
+
+function render(){
+ if(!deck.length)return;
+ let c=current(), en=$('direction').value==='en-es', mode=$('mode').value, st=cardState(c); revealed=false;
+ $('sideLabel').textContent=en?'English prompt':'Spanish prompt';
+ $('term').textContent=en?c.english:c.spanish; $('example').textContent=en?c.englishExample:c.spanishExample;
+ $('answer').textContent=en?c.spanish:c.english; $('answerExample').textContent=en?c.spanishExample:c.englishExample;
+ [$('term'),$('example')].forEach(x=>x.classList.toggle('hiddenText',mode==='audio'));
+ [$('answer'),$('answerExample')].forEach(x=>x.classList.add('hiddenText'));
+ $('status').textContent=`Card ${index+1} of ${deck.length} • ${c.topic} • ${c.type} • ${c.tense||'—'} • ${st.study}${st.difficult?' • Difficult':''}${st.favorite?' • Favorite':''}`;
+ if(mode!=='text')speak(en?c.english:c.spanish,en?'en':'es');
+}
+function reveal(){
+ revealed=true;$('answer').classList.remove('hiddenText');$('answerExample').classList.remove('hiddenText');
+ let c=current(),en=$('direction').value==='en-es'; if($('mode').value!=='text')speak(en?c.spanish:c.english,en?'es':'en');
+}
+function next(){index=(index+1)%deck.length;render()}
+function prev(){index=(index-1+deck.length)%deck.length;render()}
+function speakCurrent(){let c=current(),en=$('direction').value==='en-es';speak(en?c.english:c.spanish,en?'en':'es')}
+function speakExample(){let c=current(),en=$('direction').value==='en-es';speak(revealed?(en?c.spanishExample:c.englishExample):(en?c.englishExample:c.spanishExample),revealed?(en?'es':'en'):(en?'en':'es'))}
+function shuffle(){for(let j=deck.length-1;j>0;j--){let k=Math.floor(Math.random()*(j+1));[deck[j],deck[k]]=[deck[k],deck[j]]}index=0;render()}
+function toggleMore(){$('morePanel').classList.toggle('hidden')}
+
+$('revealBtn').onclick=reveal;$('nextBtn').onclick=next;$('prevBtn').onclick=prev;$('speakBtn').onclick=speakCurrent;$('sentenceBtn').onclick=speakExample;$('shuffleBtn').onclick=shuffle;$('moreBtn').onclick=toggleMore;
+$('learnedBtn').onclick=()=>{setCardState({study:'Learned'});next()};$('difficultBtn').onclick=()=>setCardState({difficult:!cardState(current()).difficult});$('favoriteBtn').onclick=()=>setCardState({favorite:!cardState(current()).favorite});
+['direction','mode','topic','statusFilter'].forEach(id=>$(id).onchange=()=>applyFilters());
+$('searchBtn').onclick=()=>applyFilters();$('clearSearchBtn').onclick=()=>{$('searchBox').value='';applyFilters()};
+$('fgColor').oninput=e=>{document.documentElement.style.setProperty('--fg',e.target.value);state.fg=e.target.value;saveState()};
+$('bgColor').oninput=e=>{document.documentElement.style.setProperty('--bg',e.target.value);state.bg=e.target.value;saveState()};
+$('fontSize').oninput=e=>{document.documentElement.style.setProperty('--fontSize',e.target.value+'px');state.fontSize=e.target.value;saveState()};
+$('contrast1').onclick=()=>setColors('#111111','#ffffff');$('contrast2').onclick=()=>setColors('#ffffff','#000000');
+function setColors(fg,bg){$('fgColor').value=fg;$('bgColor').value=bg;document.documentElement.style.setProperty('--fg',fg);document.documentElement.style.setProperty('--bg',bg);state.fg=fg;state.bg=bg;saveState()}
+['englishVoice','spanishVoice','enRate','esRate'].forEach(id=>$(id).onchange=e=>{state[id]=e.target.value;saveState()});
+$('previewEnglish').onclick=()=>speak('This is the selected English voice.','en');$('previewSpanish').onclick=()=>speak('Esta es la voz de español seleccionada.','es');
+
+function openEditor(c){
+ $('editor').classList.remove('hidden'); editingId=c?c.id:null;$('editorTitle').textContent=c?'Edit Current Card':'Quick Add Card';
+ $('editEnglish').value=c?c.english:'';$('editSpanish').value=c?c.spanish:'';$('editEnglishExample').value=c?c.englishExample:'';$('editSpanishExample').value=c?c.spanishExample:'';$('editTopic').value=c?c.topic:'';$('editType').value=c?c.type:'';
+ $('editEnglish').focus();
+}
+$('addBtn').onclick=()=>openEditor(null);$('editBtn').onclick=()=>openEditor(current());$('cancelEdit').onclick=()=>$('editor').classList.add('hidden');
+$('saveEdit').onclick=()=>{
+ let patch={english:$('editEnglish').value.trim(),spanish:$('editSpanish').value.trim(),englishExample:$('editEnglishExample').value.trim(),spanishExample:$('editSpanishExample').value.trim(),topic:$('editTopic').value.trim()||'User added',type:$('editType').value.trim()||'Term'};
+ if(!patch.english||!patch.spanish){alert('English and Spanish are required.');return}
+ if(editingId==null){patch.id='user-'+Date.now();patch.priority='User';patch.tense='';patch.verbFamily='';patch.baseVerb='';state.added.push(patch)}
+ else {state.edits[editingId]=Object.assign(state.edits[editingId]||{},patch)}
+ saveState();cards=clone(masterCards).map(c=>Object.assign(c,state.edits[c.id]||{})).concat(state.added);populateTopics();applyFilters();$('editor').classList.add('hidden');
+};
+$('exportBtn').onclick=()=>{
+ let blob=new Blob([JSON.stringify(state,null,2)],{type:'application/json'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='Spanish_Flashcard_Prototype_Local_Changes.json';a.click();URL.revokeObjectURL(a.href);
+};
+$('resetBtn').onclick=()=>{if(confirm('Reset all prototype progress, local edits and user-added cards?')){localStorage.removeItem(stateKey);location.reload()}};
+
+document.addEventListener('keydown',e=>{
+ if(['INPUT','TEXTAREA','SELECT'].includes(document.activeElement.tagName))return;
+ let k=e.key.toLowerCase();
+ if(e.code==='Space'){e.preventDefault();reveal()} else if(e.key==='ArrowRight')next(); else if(e.key==='ArrowLeft')prev();
+ else if(k==='s')speakCurrent(); else if(k==='e')speakExample(); else if(k==='l'){$('learnedBtn').click()} else if(k==='d')$('difficultBtn').click(); else if(k==='f')$('favoriteBtn').click(); else if(k==='r')shuffle(); else if(k==='m')toggleMore();
+});
+if(state.fg||state.bg)setColors(state.fg||'#111111',state.bg||'#ffffff');
+if(state.fontSize){$('fontSize').value=state.fontSize;document.documentElement.style.setProperty('--fontSize',state.fontSize+'px')}
+if(state.enRate)$('enRate').value=state.enRate;if(state.esRate)$('esRate').value=state.esRate;
+populateTopics();applyFilters();
+</script>
+</main></body></html>
